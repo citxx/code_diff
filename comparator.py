@@ -10,12 +10,15 @@ class Comparator():
     """
     BAD_FOR_DUPLICATE = "\n"  # пордряд идущие символы из этой сторки удаляются из кода перед началом обработки
 
-    def __init__(self, source1, source2):
+    def __init__(self, source1, source2, mcl=0.8):
         """
         Принимает два параметра source1, source2. Две  строки с исходными кодами.
+        И необязательный пораметр prob=максимальное отношение длинны подпоследовательности
+        к длинне минимального из файлов с которого мы считаем пару подозрительной
         """
         self.source1 = self.prepare_source_for_compare(self, source1)
         self.source2 = self.prepare_source_for_compare(self, source2)
+        self.max_common_len = mcl
 
     @staticmethod
     def prepare_source_for_compare(self, source):
@@ -49,43 +52,100 @@ class Comparator():
         return lcs_din[len(self.source1)][len(self.source2)]
 
     def probably_equal(self):
-        return self.get_lcs_size() / min(len(self.source1), len(self.source2)) > 0.8
+        return self.get_lcs_size() / min(len(self.source1), len(self.source2)) > self.max_common_len
 
 
 class Source():
+    """
+    хранит информацию об исходном файле
+    """
     def __init__(self, file_path):
         self.path = file_path
         file_path = path.split(file_path)[-1]
         name, self.lang_id = file_path.split(".")
         self.run_id, self.user_id, self.prob_id = name.split("-")
-        self.source = open(self.path, "r").read()
+        self.source = None
+
+    def __hash__(self):
+        return hash(self.get_path(self))
+
+    def get_source(self):
+        """
+        возвращает код в исходном файле
+        """
+        if self.source is not None:
+            return self.source
+        self.source = open(self.path, "r", encoding="utf-8").read()
+        return self.source
+
+    def get_lang_id(self):
+        return self.lang_id
+
+    def get_user_id(self):
+        return self.user_id
+
+    def get_path(self):
+        return self.path
+
+    def get_run_id(self):
+        return self.run_id
+
+    def get_prob_id(self):
+        return self.prob_id
 
 
-def compare_all(contest_path, diff_program, path_log_file):
-    contest_path = path.abspath(contest_path)
-    diff_program = path.abspath(diff_program)
+def compare_all(contest_path, diff_program, path_log_file, without_problems, mcl, is_quiet):
+    """
+    проверяет все файлы в директории contest_path на похожесть
+    """
+    compare_list(os.listdir(contest_path), diff_program, path_log_file, without_problems, mcl, is_quiet)
+
+
+def compare_list(name_list, contest_path, diff_program, path_log_file, without_problems, mcl, is_quiet):
+    """
+    сравнивает на похожесть все файлы из листа name_list
+    """
+    without_problems = set(without_problems)
     log_file = open(path.abspath(path_log_file), "w")
-    if not path.isdir(contest_path):
-        raise Exception("неверный путь к папке с контестом")
-    if not path.isfile(diff_program):
-        raise Exception("неверный путь к программе сравнения")
-    files = os.listdir()
-    for file1id in range(len(files)):
-        for file2id in range(len(files)):
-            file1name = files[file1id]
-            file2name = files[file2id]
-            try:
-                source1 = Source(path.join(contest_path, file1name))
-                source2 = Source(path.join(contest_path, file2name))
-            except:
-                raise Exception("не могу обработать файлы {0} и {1}".format(file1name, file2name))
-            if source1.user_id != source2.user_id and source1.prob_id == source2.prob_id:
-                if Comparator(source1.source, source2.source).probably_equal():
-                    subprocess.call([diff_program, source1.path, source2.path], stderr=open(os.devnull, "w"),
-                                    stdout=open(os.devnull, "w"))
-                    s = input("добавить в log файл(y, n)>>").strip().lower()
-                    if s == 'y':
-                        print("{0} == {1}".format(source1.path, source2.path), file=log_file)
+    try:
+        source_list = [Source(path.join(contest_path, name)) for name in name_list]
+    except:
+        raise Exception("не могу обработать файлы в директории")
+    prob_dict = dict()
+    for source in source_list:
+        if source.get_prob_id() not in prob_dict:
+            prob_dict[source.get_prob_id()] = [source]
+        else:
+            prob_dict[source.get_prob_id()].append(source)
+
+    for prob in prob_dict:
+        if prob not in without_problems:
+            print("проверяю задачу %s:" % prob)
+            for file1id in range(len(prob_dict[prob])):
+                for file2id in range(file1id + 1, len(prob_dict[prob])):
+                    source1 = prob_dict[prob][file1id]
+                    source2 = prob_dict[prob][file2id]
+
+                    if source1.get_user_id() != source2.get_user_id() and \
+                            Comparator(source1.get_source(), source2.get_source(), mcl).probably_equal():
+                        if not is_quiet:
+                            subprocess.call([diff_program, source1.get_path(), source2.get_path()],
+                                            stderr=open(os.devnull, "w"), stdout=open(os.devnull, "w"))
+
+                        print("{0} == {1}".format(source1.get_path(), source2.get_path()), file=log_file)
     log_file.close()
+
+
+def choice_last(list_dir):
+    """
+    возвращяет лист отсортированных последних поссылок(по каждой задаче) каждого пользователя из листа list_dir
+    """
+    last_dict = dict()
+    list_dir.sort()
+    list_dir = [Source(file) for file in list_dir]
+    for source in list_dir:
+        last_dict[source.get_user_id() + " " + source.get_prob_id()] = source.get_path()
+    return list(sorted(last_dict.values()))
+
 
 
