@@ -30,5 +30,6 @@ if __name__ == "__main__":
                                                                    'программа сравнения')
     args = parser.parse_args()
 
-
-    comparator.compare(args.contest_folder, args.diff, args.log, args.without, args.mcl, args.quiet, args.mode)
+    log_file = open(args.log, "w")
+    comparator.compare(args.contest_folder, args.diff, log_file, args.without, args.mcl, args.quiet, args.mode)
+    log_file.close()

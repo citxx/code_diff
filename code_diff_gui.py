@@ -1,16 +1,22 @@
+import os
+import sys
 from tkinter import *
 import tkinter.filedialog as filedialog
+import tkinter.messagebox as messagebox
+import threading
 from comparator import compare
-import os
 
 
 class CodeDiffGui(Frame):
+
     def __init__(self, root):
         Frame.__init__(self, root)
         self.quiet = IntVar()
         self.mode = IntVar()
         self.mcl = 0.8
-        self.mode_list = ["all", "last"]
+        self.mode_list = ["last", "all"]
+        self.compare_thread = None
+
         self.contest_path_text = Entry(self, width=50, bd=3)
         self.contest_path_text.grid(row=1, column=3, columnspan=5, sticky=NW)
         self.load_contest_directory = Button(self, text="Загрузить поссылки", command=self.load_runs)
@@ -45,8 +51,8 @@ class CodeDiffGui(Frame):
         self.mcl_text.insert(0, "0.8")
         self.mcl_text.grid(row=2, column=2, sticky=NW)
 
-        self.mode_check1 = Radiobutton(self.options_frame, text='все', variable=self.mode, value=0)
-        self.mode_check2 = Radiobutton(self.options_frame, text='только поcледний', variable=self.mode, value=1)
+        self.mode_check1 = Radiobutton(self.options_frame, text='только поcледний', variable=self.mode, value=0)
+        self.mode_check2 = Radiobutton(self.options_frame, text='все', variable=self.mode, value=1)
         self.mode_check1.grid(row=3, column=1, sticky=NW)
         self.mode_check2.grid(row=4, column=1, sticky=NW)
 
@@ -66,40 +72,63 @@ class CodeDiffGui(Frame):
             return
         if not os.path.isdir(open_path):
             return
-        self.contest_path_text.delete(0)
+        self.contest_path_text.delete(0, len(self.contest_path_text.get()))
         self.contest_path_text.insert(0, open_path)
 
     def load_logfile(self):
         open_file = filedialog.askopenfile()
         if open_file is None:
             return
-        self.logfile_path_text.delete(0)
+        self.logfile_path_text.delete(0, len(self.logfile_path_text.get()))
         self.logfile_path_text.insert(0, open_file.name)
 
     def start_compare(self):
+        if self.compare_thread is not None:
+            messagebox.showerror("Ошибка при начале сравнения", "Тестирование еще идет")
+            return
         if not os.path.isdir(self.contest_path_text.get()):
-            print("неправильный путь к контесту")
+            messagebox.showerror("Ошибка при начале сравнения", "Неверный путь к контесту.")
             return
         tmp = self.mcl
         try:
             tmp = float(self.mcl_text.get())
         except 'Exception':
-            print("неверное значения макс. совпадения")
+            messagebox.showerror("Ошибка при начале сравнения", "Неверное значения макс. совпадения")
             self.mcl = tmp
             return
         self.mcl = tmp
-        if not os.path.exists(os.path.dirname(self.logfile_path_text.get())):
-            print("неверный путь к log файлу")
+        if self.logfile_path_text.get() != "stdout" and not os.path.exists(os.path.dirname(self.logfile_path_text.get())):
+            messagebox.showerror("Ошибка при начале сравнения", "Неверный путь к log файлу")
             return
         if not os.path.isfile(self.diff_program_path_text.get()):
-            print("неверный путь к программе сравнения")
+            messagebox.showerror("Ошибка при начале сравнения", "Неверный путь к программе сравнения")
             return
-        compare(self.contest_path_text.get(), self.diff_program_path_text.get(), self.logfile_path_text.get(),
+
+        log_file = None
+        if self.logfile_path_text.get().strip() == "stdout":
+            log_file = LogWriter(sys.stdout, self.log_window_text)
+        else:
+            log_file = LogWriter(open(self.logfile_path_text.get(), "w"), self.log_window_text)
+
+        compare(self.contest_path_text.get(), self.diff_program_path_text.get(), log_file,
                 self.without_problems.get().split(), self.mcl, self.quiet.get(), self.mode_list[self.mode.get()])
 
     def stop_compare(self):
         pass
 
+
+class LogWriter:
+    def __init__(self, log_file, log_window_text):
+        self.log_file = log_file
+        self.log_window = log_window_text
+        self.log_window.delete('0.0')
+
+    def write(self, text):
+        self.log_file.write(text)
+        self.log_window.insert(END, text)
+
+    def close(self):
+        self.log_file.close()
 
 
 if __name__ == "__main__":
