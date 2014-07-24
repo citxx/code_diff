@@ -4,7 +4,7 @@ import os
 import subprocess
 
 
-class Comparator():
+class Comparator:
     """
     Предоставляет функции сравнения двух исходных текстов.
     """
@@ -55,10 +55,12 @@ class Comparator():
         return self.get_lcs_size() / min(len(self.source1), len(self.source2)) > self.max_common_len
 
 
-class Source():
+class Source:
     """
     хранит информацию об исходном файле
     """
+    __slots__ = ['path', 'lang_id', 'run_id', 'user_id', 'prob_id', 'source']
+
     def __init__(self, file_path):
         self.path = file_path
         file_path = path.split(file_path)[-1]
@@ -98,7 +100,7 @@ def compare_all(contest_path, diff_program, path_log_file, without_problems, mcl
     """
     проверяет все файлы в директории contest_path на похожесть
     """
-    compare_list(os.listdir(contest_path), diff_program, path_log_file, without_problems, mcl, is_quiet)
+    compare_list(os.listdir(contest_path), contest_path, diff_program, path_log_file, without_problems, mcl, is_quiet)
 
 
 def compare_list(name_list, contest_path, diff_program, path_log_file, without_problems, mcl, is_quiet):
@@ -142,10 +144,29 @@ def choice_last(list_dir):
     """
     last_dict = dict()
     list_dir.sort()
-    list_dir = [Source(file) for file in list_dir]
+    try:
+        print(list_dir)
+        list_dir = [Source(file) for file in list_dir if file[0] != '.']
+    except:
+        raise Exception("не могу обработь папку")
     for source in list_dir:
         last_dict[source.get_user_id() + " " + source.get_prob_id()] = source.get_path()
     return list(sorted(last_dict.values()))
+
+
+def compare(contest_path, diff_program="./kdiff3", path_log_file="./code_diff.log", without_problems=None, mcl=0.8,
+            is_quiet=False, mode='last'):
+    """
+    сравнивает файлы в папке contest_path с учетом параметров
+    """
+    if without_problems is None:
+        without_problems = list()
+
+    if mode == "last":
+        compare_list(choice_last(os.listdir(contest_path)), contest_path, diff_program,
+                     path_log_file, without_problems, mcl, is_quiet)
+    else:
+        compare_all(contest_path, diff_program, path_log_file, without_problems, mcl, is_quiet)
 
 
 
