@@ -2,10 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="597fa671-cefb-4b20-963a-92a3aa9276b0" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/TODO" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/code_diff.py" afterPath="$PROJECT_DIR$/code_diff.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/code_diff_gui.py" afterPath="$PROJECT_DIR$/code_diff_gui.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/comparator.py" afterPath="$PROJECT_DIR$/comparator.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/TODO" afterPath="$PROJECT_DIR$/TODO" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="code_diff.iws" />
@@ -51,10 +48,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="code_diff_gui.py" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="code_diff_gui.py" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/code_diff_gui.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.54545456" vertical-offset="1428" max-vertical-offset="2190">
+            <state vertical-scroll-proportion="0.0" vertical-offset="1428" max-vertical-offset="2190">
               <caret line="112" column="20" selection-start-line="112" selection-start-column="20" selection-end-line="112" selection-end-column="20" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
@@ -73,11 +70,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TODO" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="TODO" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/TODO">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="90">
-              <caret line="0" column="41" selection-start-line="0" selection-start-column="41" selection-end-line="0" selection-end-column="41" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="462">
+              <caret line="0" column="19" selection-start-line="0" selection-start-column="19" selection-end-line="0" selection-end-column="19" />
               <folding />
             </state>
           </provider>
@@ -97,10 +94,10 @@
     <option name="changedFiles">
       <list>
         <option value="$PROJECT_DIR$/code_diff.log" />
-        <option value="$PROJECT_DIR$/TODO" />
         <option value="$PROJECT_DIR$/code_diff.py" />
         <option value="$PROJECT_DIR$/comparator.py" />
         <option value="$PROJECT_DIR$/code_diff_gui.py" />
+        <option value="$PROJECT_DIR$/TODO" />
       </list>
     </option>
   </component>
@@ -390,7 +387,11 @@
       <created>1406209837500</created>
       <updated>1406209837500</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="improve gui&#10;change compare algorithm&#10;added log_window">
+      <created>1406232723194</created>
+      <updated>1406232723194</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -436,7 +437,8 @@
     <MESSAGE value="added some extra command line params&#10;improved performance&#10;" />
     <MESSAGE value="changed project config" />
     <MESSAGE value="added prealfa gui" />
-    <option name="LAST_COMMIT_MESSAGE" value="added prealfa gui" />
+    <MESSAGE value="improve gui&#10;change compare algorithm&#10;added log_window" />
+    <option name="LAST_COMMIT_MESSAGE" value="improve gui&#10;change compare algorithm&#10;added log_window" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -523,14 +525,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/TODO">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="702">
-          <caret line="0" column="41" selection-start-line="0" selection-start-column="41" selection-end-line="0" selection-end-column="41" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/code_diff.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="121" max-vertical-offset="570">
@@ -559,11 +553,19 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/code_diff_gui.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.54545456" vertical-offset="1428" max-vertical-offset="2190">
+        <state vertical-scroll-proportion="0.0" vertical-offset="1428" max-vertical-offset="2190">
           <caret line="112" column="20" selection-start-line="112" selection-start-column="20" selection-end-line="112" selection-end-column="20" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/TODO">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="462">
+          <caret line="0" column="19" selection-start-line="0" selection-start-column="19" selection-end-line="0" selection-end-column="19" />
+          <folding />
         </state>
       </provider>
     </entry>
