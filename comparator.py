@@ -15,9 +15,17 @@ class Comparator:
         И необязательный пораметр prob=максимальное отношение длинны подпоследовательности
         к длинне минимального из файлов с которого мы считаем пару подозрительной
         """
-        self.source1 = source1
-        self.source2 = source2
+        self.source1 = Comparator.prepare_source(source1)
+        self.source2 = Comparator.prepare_source(source2)
         self.max_common_len = mcl
+
+    @staticmethod
+    def prepare_source(source):
+        interest_symbols = [':', '(', ')', '{', '}', '[', ']', '<', '>', ';', '+', '-', '*', '**', '/', '=', ',', '+=',
+                            '-=', '*=', '/=']
+        for i in interest_symbols:
+            source = source.replace(i, ' %s ' % i)
+        return source
 
     @staticmethod
     def get_lcs_size(sequence1, sequence2):
