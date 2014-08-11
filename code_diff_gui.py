@@ -1,5 +1,4 @@
 import os
-import sys
 from tkinter import *
 import tkinter.filedialog as filedialog
 import tkinter.messagebox as messagebox
@@ -25,7 +24,7 @@ class CodeDiffGui(Frame):
         self.diff_program_path_text = Entry(self, width=50, bd=3)
         self.diff_program_path_text.insert(0, os.path.join(os.curdir, "kdiff3"))
         self.diff_program_path_text.grid(row=2, column=3, columnspan=5, sticky=NW)
-        self.choice_diff_program = Button(self, text="Программа сравнения", command=self.load_logfile)
+        self.choice_diff_program = Button(self, text="Программа сравнения", command=self.load_diffprogram)
         self.choice_diff_program.grid(row=2, column=1, columnspan=2, sticky=NW)
 
         self.logfile_path_text = Entry(self, width=50, bd=3)
@@ -63,8 +62,8 @@ class CodeDiffGui(Frame):
         self.start_stop_frame.grid(row=6, column=7, sticky="NE")
         self.start = Button(self.start_stop_frame, text="Начать", command=self.start_compare)
         self.start.grid(row=1, column=1, columnspan=1, sticky=NE)
-        self.start = Button(self.start_stop_frame, text="Стоп", command=self.stop_compare)
-        self.start.grid(row=1, column=2, columnspan=1, sticky=NE)
+        #self.start = Button(self.start_stop_frame, text="Стоп", command=self.stop_compare)
+        #self.start.grid(row=1, column=2, columnspan=1, sticky=NE)
 
     def load_runs(self):
         open_path = filedialog.askdirectory()
@@ -82,9 +81,16 @@ class CodeDiffGui(Frame):
         self.logfile_path_text.delete(0, len(self.logfile_path_text.get()))
         self.logfile_path_text.insert(0, open_file.name)
 
+    def load_diffprogram(self):
+        open_file = filedialog.askopenfile()
+        if open_file is None:
+            return
+        self.diff_program_path_text.delete(0, len(self.diff_program_path_text.get()))
+        self.diff_program_path_text.insert(0, open_file.name)
+
     def start_compare(self):
-        if self.compare_thread is not None:
-            messagebox.showerror("Ошибка при начале сравнения", "Тестирование еще идет")
+        if self.compare_thread is not None and self.compare_thread.is_alive():
+            messagebox.showerror("Ошибка при начале сравнения", "Сравнение еще идет")
             return
         if not os.path.isdir(self.contest_path_text.get()):
             messagebox.showerror("Ошибка при начале сравнения", "Неверный путь к контесту.")
@@ -109,9 +115,11 @@ class CodeDiffGui(Frame):
             log_file = LogWriter(sys.stdout, self.log_window_text)
         else:
             log_file = LogWriter(open(self.logfile_path_text.get(), "w"), self.log_window_text)
-
-        compare(self.contest_path_text.get(), self.diff_program_path_text.get(), log_file,
-                self.without_problems.get().split(), self.mcl, self.quiet.get(), self.mode_list[self.mode.get()])
+        self.compare_thread = CompareThread(self.contest_path_text.get(), self.diff_program_path_text.get(), log_file,
+                                            self.without_problems.get().split(), self.mcl, self.quiet.get(),
+                                            self.mode_list[self.mode.get()])
+        self.compare_thread.start()
+        print("win!")
 
     def stop_compare(self):
         pass
@@ -130,6 +138,23 @@ class LogWriter:
     def close(self):
         self.log_file.close()
 
+
+class CompareThread(threading.Thread):
+    def __init__(self, contest_path, diff_program=None, log_file=None, without_problems=None, mcl=0.8,
+                 is_quiet=False, mode='last'):
+        threading.Thread.__init__(self)
+        self.contest_path = contest_path
+        self.diff_program = diff_program
+        self.log_file = log_file
+        self.without_problems = without_problems
+        self.mcl = mcl
+        self.mcl = mcl
+        self.is_quiet = is_quiet
+        self.mode = mode
+
+    def run(self):
+        compare(self.contest_path, self.diff_program, self.log_file, self.without_problems, self.mcl, self.is_quiet,
+                self.mode)
 
 if __name__ == "__main__":
     main_window = Tk()
