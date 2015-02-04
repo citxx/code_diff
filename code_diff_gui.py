@@ -119,7 +119,6 @@ class CodeDiffGui(Frame):
                                             self.without_problems.get().split(), self.mcl, self.quiet.get(),
                                             self.mode_list[self.mode.get()])
         self.compare_thread.start()
-        print("win!")
 
     def stop_compare(self):
         pass
