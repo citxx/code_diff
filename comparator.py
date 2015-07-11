@@ -21,6 +21,9 @@ class Comparator:
 
     @staticmethod
     def prepare_source(source):
+        """
+        Заменяет все операторы на пробелы
+        """
         interest_symbols = [':', '(', ')', '{', '}', '[', ']', '<', '>', ';', '+', '-', '*', '**', '/', '=', ',', '+=',
                             '-=', '*=', '/=']
         for i in interest_symbols:
@@ -32,7 +35,7 @@ class Comparator:
         """
         Возвращает размер наибольшей общей подстроки в двух последовательностях.
         """
-        lcs_din = [[0 for i in range(len(sequence2) + 1)] for j in range(len(sequence1) + 1)]
+        lcs_din = [[0 for _ in range(len(sequence2) + 1)] for _ in range(len(sequence1) + 1)]
 
         for i in range(1, len(lcs_din)):
             for j in range(1, len(lcs_din[i])):
@@ -42,7 +45,7 @@ class Comparator:
 
         return lcs_din[len(sequence1)][len(sequence2)]
 
-    def probably_equal(self):
+    def is_equal(self):
         return self.get_lcs_size(self.source1.split(), self.source2.split()) / min(len(self.source1.split()), len(self.source2.split())) > self.max_common_len
 
 
@@ -60,11 +63,11 @@ class Source:
         self.source = None
 
     def __hash__(self):
-        return hash(self.get_path(self))
+        return hash(self.get_path())
 
     def get_source(self):
         """
-        возвращает код в исходном файле
+        читает код из исходного файла
         """
         if self.source is not None:
             return self.source
@@ -119,7 +122,7 @@ def compare_list(name_list, contest_path, diff_program, log_file, without_proble
                     source2 = prob_dict[prob][file2id]
 
                     if source1.get_user_id() != source2.get_user_id() and \
-                            Comparator(source1.get_source(), source2.get_source(), mcl).probably_equal():
+                            Comparator(source1.get_source(), source2.get_source(), mcl).is_equal():
                         if not is_quiet:
                             subprocess.call([diff_program, source1.get_path(), source2.get_path()],
                                             stderr=open(os.devnull, "w"), stdout=open(os.devnull, "w"))
@@ -153,7 +156,7 @@ def compare(contest_path, diff_program=None, log_file=None, without_problems=Non
         log_file = open(os.path.join(os.curdir, "code_diff.log"))
 
     if diff_program is None:
-        diff_program = os.path.join(os.curdir, "code_diff.log")
+        diff_program = os.path.join(os.curdir, "kdiff3")
 
     if without_problems is None:
         without_problems = list()

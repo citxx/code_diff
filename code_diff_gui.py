@@ -137,7 +137,6 @@ class LogWriter:
     def close(self):
         self.log_file.close()
 
-
 class CompareThread(threading.Thread):
     def __init__(self, contest_path, diff_program=None, log_file=None, without_problems=None, mcl=0.8,
                  is_quiet=False, mode='last'):
